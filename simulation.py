@@ -1,14 +1,12 @@
+
 from json import loads
-import os
+from time import sleep
+from os import system
 NOT = 0 # the character doesn't exist in the word
 ELSE = 1 # the character exists in the word, but at another index
 RIGHT = 2 # the character exists in the word, and at the right index
-GRAY = '⬛'
-YELLOW = '🟨'
-GREEN = '🟩'
 
 forbiddenLetters = []
-
 
 class Constraint:
     words = list()
@@ -126,9 +124,6 @@ class Constraint:
     def highestFrequency(cls, words: list) -> str:
         highestValue = 0
         highestWord = str()
-        if len(words) == 0:
-            print('no words found')
-            return
         for word in words:
             if cls.frequencies[word]['frequency'] > highestValue:
                 highestValue = cls.frequencies[word]['frequency']
@@ -145,80 +140,66 @@ class Constraint:
                 
         return guesses # returns all valid guesses
     
-clear = lambda: os.system('cls')    
 
-guessSquares = []
-def printGuessSquares():
-    for row in guessSquares:
-        print(row)
-
-def main():
-    firstRound = True
-    clear()
-    Constraint.loadwords()
-    constraints = list()
-    print('The optimal guess is\n-----\ncrane\n-----')
-    word = 'crane' # start with crane. It's the best first word
+def game(word):
+    constraints = []
+    turn = 0
     while True:
+        if turn == 0:
+            guess = 'crane'
+        else:
+            guess = Constraint.highestFrequency(Constraint.calculateGuess(constraints))
+        if word == guess:
+            print('you win!')
+            return True
+        # calculate the results
+        result = [] # index is the letter index, value is the result/color of the letter
+        print(guess)
+        for i in range(5):
+            print(i)
+            letter = guess[i]
+            # gray
+            if letter not in word:
+                result.append(0)
+            # yellow or green
+            elif letter in word:
+                if word[i] != letter:
+                    result.append(1)
+                else:
+                    result.append(2)
+        print(result)
+        turn += 1
+        if turn == 6:
+            print('you lose!')
+            return False
+        # add the new data
+        constraints.append
+        (
+            Constraint
+            (guess[0], guess[1], guess[2], guess[3], guess[4], 
+                result[0], result[1], result[2], result[3], result[4]
+            )
+        )
         
-        
-            
-            
-        word = str()
-        validChars = False
-        word = str()
-        while len(word) != 5 and not validChars:
-            word = input('Enter your guess: ')
-            if len(word) != 5:
-                print('Guess length must be 5')
-            
-            validChars = True
-            for letter in word:
-                if letter not in 'abcdefghijklmnopqrstuvwxyz':
-                    validChars = False
-                    print('Guess must be all lowercase letters')
-            
-        result = str()
-        validChars = False
-        while len(result) != 5 and not validChars:
-            result = input('Enter the result of the guess: ')
-            if len(result) != 5:
-                print('Result length must be 5')
-            
-            # set to True, then set back to False if there's in invalid character
-            validChars = True
-            for letter in result:
-                if letter not in '012':
-                    validChars = False
-                    print('Results must be a number between 0 and 2')
-            
-        result0 = int(result[0])
-        result1 = int(result[1])
-        result2 = int(result[2])
-        result3 = int(result[3])
-        result4 = int(result[4])
-        
-        # add the new constraint
-        constraints.append(Constraint(word[0], word[1], word[2], word[3], word[4], result0, result1, result2, result3, result4))
-        possible: list = Constraint.calculateGuess(constraints)
-        optimal: str = Constraint.highestFrequency(possible)
-        if optimal == None:
-            print('No words found')
-            return
-        squares = ''
-        for letter in result:
-            letter = int(letter)
-            if letter == NOT:
-                squares += GRAY
-            elif letter == ELSE:
-                squares += YELLOW
-            else:
-                squares += GREEN
-        guessSquares.append(squares)
+    
 
-        printGuessSquares()
-        print(f'The optimal guess is\n-----\n{optimal}\n-----')
+clear = lambda: system('cls') 
+
+    
+def main():
+    Constraint.loadwords()
+    for word in Constraint.words:
+        print(word)
+        result = game(word)
+        print(result)
+        sleep(15)
+        clear()
+        
+        
+
+
         
 
 if __name__ == '__main__':
-    main()
+    #main()
+    game('billy')
