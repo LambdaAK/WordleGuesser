@@ -1,4 +1,4 @@
-
+from json import loads
 
 NOT = 0 # the character doesn't exist in the word
 ELSE = 1 # the character exists in the word, but at another index
@@ -6,16 +6,19 @@ RIGHT = 2 # the character exists in the word, and at the right index
 
 forbiddenLetters = []
 
-
 class Constraint:
     words = list()
+    frequencies = dict()
     @classmethod
-    def loadwords(cls, filename):
+    def loadwords(cls):
         f = open('words.txt', 'r')
         cls.words = f.readlines()
         f.close()
         for i in range(len(cls.words)):
             cls.words[i] = cls.words[i].strip() # remove the newline character
+        f = open('frequencies.json', 'r')
+        cls.frequencies = loads(f.read())
+        f.close()
     
     
     def __init__(self, letter0, letter1, letter2, letter3, letter4, val0, val1, val2, val3, val4):
@@ -114,10 +117,18 @@ class Constraint:
                             return False
                                 
         return True
-        
-        
-
     
+    @classmethod
+    def highestFrequency(cls, words: list) -> str:
+        highestValue = 0
+        highestWord = str()
+        for word in words:
+            if cls.frequencies[word]['frequency'] > highestValue:
+                highestValue = cls.frequencies[word]['frequency']
+                highestWord = word
+        return highestWord
+        
+        
     @classmethod
     def calculateGuess(cls, constraints: list) -> list:
         guesses = []
@@ -127,12 +138,14 @@ class Constraint:
                 
         return guesses # returns all valid guesses
     
-        
+    
 
 
-Constraint.loadwords('words.txt')
+
+
 
 def main():
+    Constraint.loadwords('words.txt')
     constraints = list()
     while True:
         word = input('Enter the word: ')
@@ -145,8 +158,9 @@ def main():
         
         # add the new constraint
         constraints.append(Constraint(word[0], word[1], word[2], word[3], word[4], result0, result1, result2, result3, result4))
-        for word in Constraint.calculateGuess(constraints):
-            print(word)
+        possible: list = Constraint.calculateGuess(constraints)
+        optimal: str = Constraint.highestFrequency(possible)
+        print(optimal)
         
 
 if __name__ == '__main__':
