@@ -1,11 +1,17 @@
 from json import loads
 import os
+from statistics import NormalDist
 NOT = 0 # the character doesn't exist in the word
 ELSE = 1 # the character exists in the word, but at another index
 RIGHT = 2 # the character exists in the word, and at the right index
 GRAY = '⬛'
 YELLOW = '🟨'
 GREEN = '🟩'
+WHITE = '⬜'
+BLUECODE = '\033[2;34m'
+GREENCODE = '\033[2;32m'
+YELLOWCODE = '\033[1;33m'
+
 
 forbiddenLetters = []
 
@@ -123,7 +129,7 @@ class Constraint:
         return True
     
     @classmethod
-    def highestFrequency(cls, words: list) -> str:
+    def highestFrequency(cls, words: list):
         highestValue = 0
         highestWord = str()
         if len(words) == 0:
@@ -135,9 +141,9 @@ class Constraint:
                 highestWord = word
         return highestWord
         
-        
+       
     @classmethod
-    def calculateGuess(cls, constraints: list) -> list:
+    def calculateGuess(cls, constraints: list):
         guesses = []
         for word in cls.words:
             if cls.checkWord(word, constraints): # if the word passes the constraints
@@ -149,26 +155,51 @@ clear = lambda: os.system('cls')
 
 guessSquares = []
 def printGuessSquares():
+    '''Prints the board with the guesses'''
+    if len(guessSquares) == 0:
+        return
     for row in guessSquares:
         print(row)
+    # print more white squares up to 6 columns
+    for i in range(len(guessSquares), 6):
+        for j in range(5):
+            print(WHITE, end='')
+        print()
+    
+        
+def _input(prompt: str):
+    '''A formatted input function'''
+    print(GREENCODE)
+    result = input(prompt)
+    print(BLUECODE)
+    clear()
+    return result
+
+
+def instructions():
+    print('''
+        For each guess, input your chosen word.
+        Afterwards, input the data from the guess.
+            gray = 0
+            yellow = 1
+            green = 2
+        
+    ''')
 
 def main():
+    
     firstRound = True
-    clear()
     Constraint.loadwords()
     constraints = list()
-    print('The optimal guess is\n-----\ncrane\n-----')
+    print(f'The optimal guess is\n-----\n{YELLOWCODE}crane{BLUECODE}\n-----')
     word = 'crane' # start with crane. It's the best first word
-    while True:
-        
-        
-            
-            
+    instructions()
+    while True: 
         word = str()
         validChars = False
         word = str()
         while len(word) != 5 and not validChars:
-            word = input('Enter your guess: ')
+            word = _input('Enter your guess: ')
             if len(word) != 5:
                 print('Guess length must be 5')
             
@@ -181,7 +212,7 @@ def main():
         result = str()
         validChars = False
         while len(result) != 5 and not validChars:
-            result = input('Enter the result of the guess: ')
+            result = _input('Enter the result of the guess: ')
             if len(result) != 5:
                 print('Result length must be 5')
             
@@ -215,10 +246,17 @@ def main():
             else:
                 squares += GREEN
         guessSquares.append(squares)
-
+        clear()
         printGuessSquares()
-        print(f'The optimal guess is\n-----\n{optimal}\n-----')
+        print(f'The optimal guess is\n-----\n{YELLOWCODE}{optimal}{BLUECODE}\n-----')
+        
+        
+def mainWrapper():
+    while True:
+        main()
         
 
 if __name__ == '__main__':
-    main()
+    clear()
+    print(BLUECODE)
+    mainWrapper()
